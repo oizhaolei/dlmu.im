@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  *
@@ -36,7 +35,7 @@ public class SearchServlet extends AbstractImServlet {
 			JSONArray l = plugin.search(u, t);
 
 			out.println(l);
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			out.println(e.getMessage());
 		}

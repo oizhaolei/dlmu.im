@@ -1,17 +1,19 @@
 package org.tttalk.openfire.plugin;
 
 import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jivesoftware.database.DbConnectionManager;
 import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
-import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
-import org.jivesoftware.openfire.user.UserProvider;
 import org.jivesoftware.util.StringUtils;
 import org.jivesoftware.util.WebManager;
 import org.json.JSONArray;
@@ -30,8 +32,6 @@ public class DlmuIMPlugin implements Plugin {
 
 	private UserManager userManager;
 	private GroupManager groupManager;
-	private UserProvider provider;
-
 	private String domain;
 
 	private MessageRouter router;
@@ -42,7 +42,7 @@ public class DlmuIMPlugin implements Plugin {
 		WebManager wm = new WebManager();
 		wm.getGroupManager();
 		groupManager = GroupManager.getInstance();
-		provider = UserManager.getUserProvider();
+		UserManager.getUserProvider();
 		domain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
 		router = XMPPServer.getInstance().getMessageRouter();
 	}
@@ -54,7 +54,6 @@ public class DlmuIMPlugin implements Plugin {
 	@Override
 	public void destroyPlugin() {
 		userManager = null;
-		provider = null;
 	}
 
 	public JSONArray org(String pid) throws Exception {
@@ -91,17 +90,40 @@ public class DlmuIMPlugin implements Plugin {
 		return orgs;
 	}
 
-	public JSONArray search(String u, String t) throws JSONException {
+	public JSONArray search(String u, String t) throws JSONException,
+			SQLException {
 		JSONArray results = new JSONArray();
-		Collection<User> users = userManager.getUsers();
-		for (User user : users) {
+		// Collection<User> users = userManager.getUsers();
+		// for (User user : users) {
+		// JSONObject row = new JSONObject();
+		// row.put("name", user.getName());
+		// row.put("username", user.getUsername());
+		// log.debug(row.toString());
+		//
+		// results.put(row);
+		// }
+		String sql = "select  XH code, XM name, 's' utype from VI_YKT_XSXX where XM =? union select  GH code, XM, 't' utype from RS_HR_TEACHER_JZGJCXX where XM =?";
+		log.info(sql);
+		PreparedStatement ps = DbConnectionManager.getConnection()
+				.prepareStatement(sql);
+		ps.setString(1, u);
+		ps.setString(1, t);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			String code = rs.getString("code");
+			String name = rs.getString("name");
+			String utype = rs.getString("utype");
 			JSONObject row = new JSONObject();
-			row.put("name", user.getName());
-			row.put("username", user.getUsername());
-			log.debug(row.toString());
+			row.put("code", code);
+			row.put("name", StringUtils.escapeHTMLTags(name));
+			row.put("utype", utype);
+			log.info(row.toString());
 
 			results.put(row);
 		}
+		rs.close();
+		ps.close();
+
 		return results;
 	}
 
