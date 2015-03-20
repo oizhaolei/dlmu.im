@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
@@ -25,6 +24,8 @@ public class SearchServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		// response.setContentType("text/json;charset=GBK");
+		response.setCharacterEncoding("GBK");
 
 		Log.info(request.toString());
 		String u = request.getParameter("u");
@@ -34,10 +35,7 @@ public class SearchServlet extends AbstractImServlet {
 		try {
 			JSONArray l = plugin.search(u, t);
 
-			JSONObject jo = new JSONObject();
-			jo.put("u", u);
-			jo.put("t", t);
-			out.println(jo.toString());
+			out.println(l);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			out.println(e.getMessage());

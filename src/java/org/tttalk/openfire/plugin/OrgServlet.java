@@ -23,6 +23,8 @@ public class OrgServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		// response.setContentType("text/json;charset=GBK");
+		response.setCharacterEncoding("GBK");
 
 		Log.info(request.toString());
 		String pid = request.getParameter("pid");

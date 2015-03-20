@@ -38,15 +38,6 @@ public abstract class AbstractImServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("text/json; charset=UTF-8");
-
 		doGet(request, response);
 	}
-
-	@Override
-	public void destroy() {
-		super.destroy();
-	}
-
 }
