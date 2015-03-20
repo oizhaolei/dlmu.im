@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<!-- Main plugin class -->
+	<class>org.tttalk.openfire.plugin.DlmuIMPlugin</class>
+
+	<name>Dlmu IM Demo</name>
+	<description>for dlmu im</description>
+	<version>1.0</version>
+	<author>tttalk.org</author>
+	<date>01/30/2015</date>
+	<minServerVersion>3.9.0</minServerVersion>
+
+</plugin>
