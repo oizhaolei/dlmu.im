@@ -27,12 +27,12 @@ public class SearchServlet extends AbstractImServlet {
 		response.setCharacterEncoding("GBK");
 
 		Log.info(request.toString());
-		String u = request.getParameter("u");
+		String s = request.getParameter("s");
 		String t = request.getParameter("t");
 
 		PrintWriter out = response.getWriter();
 		try {
-			JSONArray l = plugin.search(u, t);
+			JSONArray l = plugin.search(s, t);
 
 			out.println(l);
 		} catch (Exception e) {

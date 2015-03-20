@@ -90,7 +90,7 @@ public class DlmuIMPlugin implements Plugin {
 		return orgs;
 	}
 
-	public JSONArray search(String u, String t) throws JSONException,
+	public JSONArray search(String s, String t) throws JSONException,
 			SQLException {
 		JSONArray results = new JSONArray();
 		// Collection<User> users = userManager.getUsers();
@@ -102,12 +102,14 @@ public class DlmuIMPlugin implements Plugin {
 		//
 		// results.put(row);
 		// }
-		String sql = "select  XH code, XM name, 's' utype from VI_YKT_XSXX where XM =? union select  GH code, XM, 't' utype from RS_HR_TEACHER_JZGJCXX where XM =?";
+		String sql = "select  XH code, XM name, 's' utype from VI_YKT_XSXX where XM =? union all select  GH code, XM, 't' utype from RS_HR_TEACHER_JZGJCXX where XM =?";
 		log.info(sql);
+		log.info(s);
+		log.info(t);
 		PreparedStatement ps = DbConnectionManager.getConnection()
 				.prepareStatement(sql);
-		ps.setString(1, u);
-		ps.setString(1, t);
+		ps.setString(1, s);
+		ps.setString(2, t);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			String code = rs.getString("code");
