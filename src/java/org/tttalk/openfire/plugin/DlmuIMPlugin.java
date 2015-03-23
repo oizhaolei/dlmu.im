@@ -13,6 +13,7 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
+import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.util.StringUtils;
 import org.jivesoftware.util.WebManager;
@@ -56,38 +57,54 @@ public class DlmuIMPlugin implements Plugin {
 		userManager = null;
 	}
 
-	public JSONArray org(String pid) throws Exception {
+	public JSONObject org(String pid) throws Exception {
+		JSONObject result = new JSONObject();
+
 		JSONArray orgs = new JSONArray();
-		// String sql =
-		// "select  CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
-		// PreparedStatement ps = DbConnectionManager.getConnection()
-		// .prepareStatement(sql);
-		// ps.setString(1, pid);
-		// ResultSet rs = ps.executeQuery();
-		// while (rs.next()) {
-		// String CODE = rs.getString("CODE");
-		// String DEPARTNAME = rs.getString("DEPARTNAME");
-		// JSONObject row = new JSONObject();
-		// row.put("CODE", CODE);
-		// row.put("DEPARTNAME", StringUtils.escapeHTMLTags(DEPARTNAME));
-		// log.debug(row.toString());
-		//
-		// orgs.put(row);
-		// }
-		// rs.close();
-		// ps.close();
-		Collection<Group> groups = groupManager.getGroups();
-		for (Group group : groups) {
+		String sql = "select  CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		PreparedStatement ps = DbConnectionManager.getConnection()
+				.prepareStatement(sql);
+		ps.setString(1, pid);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			String CODE = rs.getString("CODE");
+			String DEPARTNAME = rs.getString("DEPARTNAME");
 			JSONObject row = new JSONObject();
-			row.put("CODE", group.getName());
-			row.put("DEPARTNAME",
-					StringUtils.escapeHTMLTags(group.getDescription()));
-			log.info(row.toString());
+			row.put("jid", CODE);
+			row.put("name", StringUtils.escapeHTMLTags(DEPARTNAME));
+			log.debug(row.toString());
 
 			orgs.put(row);
-
 		}
-		return orgs;
+		rs.close();
+		ps.close();
+
+		JSONArray members = new JSONArray();
+
+		try {
+			String groupname = "org_" + pid;
+			Group group = groupManager.getGroup(groupname);
+			for (JID jid : group.getMembers()) {
+				JSONObject row = new JSONObject();
+				try {
+					String string = jid.toString();
+					String username = string.substring(0, string.indexOf('@'));
+					User user = userManager.getUser(username);
+
+					row.put("name", user.getName());
+
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+				row.put("jid", jid);
+				members.put(row);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		result.put("orgs", orgs);
+		result.put("members", members);
+		return result;
 	}
 
 	public JSONArray search(String s, String t) throws JSONException,

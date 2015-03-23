@@ -31,6 +31,7 @@ public class SendServlet extends AbstractImServlet {
 
 		String from_jid = request.getParameter("from_jid");
 		String to_group = request.getParameter("to_group");
+		to_group = to_group.substring(0, to_group.indexOf('@'));
 		String subject = request.getParameter("subject");
 		String body = request.getParameter("body");
 

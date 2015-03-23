@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  *
@@ -31,7 +31,7 @@ public class OrgServlet extends AbstractImServlet {
 
 		PrintWriter out = response.getWriter();
 		try {
-			JSONArray l = plugin.org(pid);
+			JSONObject l = plugin.org(pid);
 			out.println(l.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
