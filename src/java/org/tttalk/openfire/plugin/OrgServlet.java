@@ -23,11 +23,15 @@ public class OrgServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		// response.setContentType("text/json;charset=GBK");
-		response.setCharacterEncoding("GBK");
+		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
-		String pid = request.getParameter("pid");
+		String jid = request.getParameter("jid");
+		// org_116020@im.dlmu.edu.cn = >116020
+
+		int start = jid.indexOf("org_") + 4;
+		int end = jid.indexOf("@");
+		String pid = jid.substring(start, end);
 
 		PrintWriter out = response.getWriter();
 		try {

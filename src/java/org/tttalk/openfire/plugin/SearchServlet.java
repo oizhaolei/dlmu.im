@@ -23,8 +23,7 @@ public class SearchServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		// response.setContentType("text/json;charset=GBK");
-		response.setCharacterEncoding("GBK");
+		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
 		String s = request.getParameter("s");

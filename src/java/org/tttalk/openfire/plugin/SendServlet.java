@@ -27,7 +27,7 @@ public class SendServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		Log.info(request.toString());
+		response.setCharacterEncoding("UTF-8");
 
 		String from_jid = request.getParameter("from_jid");
 		String to_group = request.getParameter("to_group");

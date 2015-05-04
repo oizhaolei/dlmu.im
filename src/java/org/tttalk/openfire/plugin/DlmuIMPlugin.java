@@ -61,7 +61,9 @@ public class DlmuIMPlugin implements Plugin {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  'org_'||CODE||'@"
+				+ domain
+				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		PreparedStatement ps = DbConnectionManager.getConnection()
 				.prepareStatement(sql);
 		ps.setString(1, pid);
@@ -71,7 +73,8 @@ public class DlmuIMPlugin implements Plugin {
 			String DEPARTNAME = rs.getString("DEPARTNAME");
 			JSONObject row = new JSONObject();
 			row.put("jid", CODE);
-			row.put("name", StringUtils.escapeHTMLTags(DEPARTNAME));
+			row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME
+					.getBytes(), "UTF-8")));
 			log.debug(row.toString());
 
 			orgs.put(row);

@@ -24,6 +24,7 @@ public class LoginServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
 		String username = request.getParameter("username");
