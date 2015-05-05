@@ -1,6 +1,7 @@
 package org.tttalk.openfire.plugin;
 
 import java.io.File;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,23 +65,31 @@ public class DlmuIMPlugin implements Plugin {
 		String sql = "select  'org_'||CODE||'@"
 				+ domain
 				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
-		PreparedStatement ps = DbConnectionManager.getConnection()
-				.prepareStatement(sql);
-		ps.setString(1, pid);
-		ResultSet rs = ps.executeQuery();
-		while (rs.next()) {
-			String CODE = rs.getString("CODE");
-			String DEPARTNAME = rs.getString("DEPARTNAME");
-			JSONObject row = new JSONObject();
-			row.put("jid", CODE);
-			row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME
-					.getBytes(), "UTF-8")));
-			log.debug(row.toString());
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DbConnectionManager.getConnection();
+			ps = conn
+					.prepareStatement(sql);
+			ps.setString(1, pid);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String CODE = rs.getString("CODE");
+				String DEPARTNAME = rs.getString("DEPARTNAME");
+				JSONObject row = new JSONObject();
+				row.put("jid", CODE);
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME
+						.getBytes(), "UTF-8")));
+				log.debug(row.toString());
 
-			orgs.put(row);
+				orgs.put(row);
+			}
+			rs.close();
+			ps.close();
+		} finally {
+			DbConnectionManager.closeConnection(rs, ps, conn);
 		}
-		rs.close();
-		ps.close();
 
 		JSONArray members = new JSONArray();
 
@@ -126,25 +135,32 @@ public class DlmuIMPlugin implements Plugin {
 		log.info(sql);
 		log.info(s);
 		log.info(t);
-		PreparedStatement ps = DbConnectionManager.getConnection()
-				.prepareStatement(sql);
-		ps.setString(1, s);
-		ps.setString(2, t);
-		ResultSet rs = ps.executeQuery();
-		while (rs.next()) {
-			String code = rs.getString("code");
-			String name = rs.getString("name");
-			String utype = rs.getString("utype");
-			JSONObject row = new JSONObject();
-			row.put("code", code);
-			row.put("name", StringUtils.escapeHTMLTags(name));
-			row.put("utype", utype);
-			log.info(row.toString());
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DbConnectionManager.getConnection();
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, s);
+			ps.setString(2, t);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String code = rs.getString("code");
+				String name = rs.getString("name");
+				String utype = rs.getString("utype");
+				JSONObject row = new JSONObject();
+				row.put("code", code);
+				row.put("name", StringUtils.escapeHTMLTags(name));
+				row.put("utype", utype);
+				log.info(row.toString());
 
-			results.put(row);
+				results.put(row);
+			}
+			rs.close();
+			ps.close();
+		} finally {
+			DbConnectionManager.closeConnection(rs, ps, conn);
 		}
-		rs.close();
-		ps.close();
 
 		return results;
 	}
