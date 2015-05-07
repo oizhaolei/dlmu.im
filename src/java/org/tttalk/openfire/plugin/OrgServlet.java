@@ -26,20 +26,20 @@ public class OrgServlet extends AbstractImServlet {
 		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
-		String jid = request.getParameter("jid");
+		String pid = request.getParameter("jid");
 		// org_116020@im.dlmu.edu.cn = >116020
 
-		int start = jid.indexOf("org_") + 4;
-		int end = jid.indexOf("@");
-		String pid = jid.substring(start, end);
-
+		int start = pid.indexOf("org_") + 4;
+		int end = pid.indexOf("@");
+		if (start >= 0 && end >= start) {
+			pid = pid.substring(start, end);
+		}
 		PrintWriter out = response.getWriter();
 		try {
 			JSONObject l = plugin.org(pid);
 			out.println(l.toString());
 		} catch (Exception e) {
-			e.printStackTrace();
-			out.println(e.getMessage());
+			Log.error(e.getMessage(), e);
 		}
 	}
 

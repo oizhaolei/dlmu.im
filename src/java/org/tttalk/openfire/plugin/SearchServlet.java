@@ -35,8 +35,7 @@ public class SearchServlet extends AbstractImServlet {
 
 			out.println(l);
 		} catch (Exception e) {
-			e.printStackTrace();
-			out.println(e.getMessage());
+			Log.error(e.getMessage(), e);
 		}
 	}
 

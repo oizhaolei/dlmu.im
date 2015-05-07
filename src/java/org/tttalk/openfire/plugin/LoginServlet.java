@@ -37,8 +37,7 @@ public class LoginServlet extends AbstractImServlet {
 			jo.put("password", password);
 			out.println(jo.toString());
 		} catch (JSONException e) {
-			e.printStackTrace();
-			out.println(e.getMessage());
+			Log.error(e.getMessage(), e);
 		}
 	}
 
