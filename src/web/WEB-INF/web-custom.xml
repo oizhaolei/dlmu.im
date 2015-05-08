@@ -45,6 +45,15 @@
         <servlet-name>OrgServlet</servlet-name>
         <url-pattern>/org</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ServiceServlet</servlet-name>
+        <servlet-class>org.tttalk.openfire.plugin.ServiceServlet</servlet-class>
+    </servlet>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>ServiceServlet</servlet-name>
+        <url-pattern>/service</url-pattern>
+    </servlet-mapping>
 
     <!-- Servlets -->
     <servlet>
