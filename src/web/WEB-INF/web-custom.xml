@@ -65,4 +65,39 @@
         <servlet-name>SendServlet</servlet-name>
         <url-pattern>/send</url-pattern>
     </servlet-mapping>
+    
+        
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <servlet-class>org.tttalk.openfire.plugin.ChangePasswordServlet</servlet-class>
+    </servlet>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>ChangePasswordServlet</servlet-name>
+        <url-pattern>/change_user_pwd</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>CreateAccountServlet</servlet-name>
+        <servlet-class>org.tttalk.openfire.plugin.CreateAccountServlet</servlet-class>
+    </servlet>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>CreateAccountServlet</servlet-name>
+        <url-pattern>/create_account</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>UserProperyServlet</servlet-name>
+        <servlet-class>org.tttalk.openfire.plugin.UserProperyServlet</servlet-class>
+    </servlet>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>UserProperyServlet</servlet-name>
+        <url-pattern>/userproperties</url-pattern>
+    </servlet-mapping>
+    
 </web-app>

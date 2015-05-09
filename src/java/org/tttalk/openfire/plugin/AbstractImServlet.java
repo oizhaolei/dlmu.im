@@ -1,6 +1,9 @@
 package org.tttalk.openfire.plugin;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -32,12 +35,27 @@ public abstract class AbstractImServlet extends HttpServlet {
 		AuthCheckFilter.addExclude(DlmuIMPlugin.PLUGIN_NAME + getUri());
 	}
 
-	// TODO: sign check
 	abstract String getUri();
 
 	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
+		Map<String, String> params = getParameterMap(request);
+		if (Utils.checkSign(params)) {
+			doGet(request, response);
+		} else {
+			response.getWriter().println("{}");
+		}
+	}
+
+	private Map<String, String> getParameterMap(HttpServletRequest request) {
+		Map<String, String> params = new HashMap<String, String>();
+		Enumeration<String> enumeration = request.getParameterNames();
+		while (enumeration.hasMoreElements()) {
+			String parameterName = enumeration.nextElement();
+			String parameterValue = request.getParameter(parameterName);
+			params.put(parameterName, parameterValue);
+		}
+		return params;
 	}
 }

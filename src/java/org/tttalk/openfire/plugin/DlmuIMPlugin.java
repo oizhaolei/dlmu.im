@@ -15,7 +15,9 @@ import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.user.User;
+import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
+import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.StringUtils;
 import org.jivesoftware.util.WebManager;
 import org.json.JSONArray;
@@ -185,4 +187,47 @@ public class DlmuIMPlugin implements Plugin {
 		return users;
 	}
 
+	public void changePassword(String username, String password) {
+
+		try {
+			User user = userManager.getUser(username);
+			user.setPassword(password);
+			log.info(String.format("changePassword:%s,%s", username, password));
+		} catch (UserNotFoundException e) {
+			log.info(username, e);
+		}
+	}
+
+	public void createAccount(String username, String password) {
+		try {
+			User user = userManager.createUser(username, password, null, null);
+			log.info(String.format("createAccount:%s,%s", user.getUID(),
+					user.getUsername()));
+		} catch (UserAlreadyExistsException e) {
+			log.info(username + " UserAlreadyExists.");
+			changePassword(username, password);
+		}
+	}
+
+	public String getProperty(String username, String key, String def) {
+		try {
+			User user = userManager.getUser(username);
+			if (key == null)
+				return user.getProperties().toString();
+			String value = user.getProperties().get(key);
+			if (value == null) {
+				value = def;
+			}
+			return value;
+		} catch (UserNotFoundException e) {
+			log.error(username, e);
+			return def;
+		}
+	}
+
+	public void updateProperty(String username, String key, String value)
+			throws UserNotFoundException {
+		User user = userManager.getUser(username);
+		user.getProperties().put(key, value);
+	}
 }
