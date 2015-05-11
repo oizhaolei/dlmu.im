@@ -60,7 +60,7 @@ public class DlmuIMPlugin implements Plugin {
 		userManager = null;
 	}
 
-	public JSONObject org(String pid) throws Exception {
+	public JSONObject org(String pid, String isStudent) throws Exception {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();

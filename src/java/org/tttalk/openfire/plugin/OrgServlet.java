@@ -34,6 +34,7 @@ public class OrgServlet extends AbstractImServlet {
 
 		Log.info(request.toString());
 		String pid = request.getParameter("jid");
+		String isStudent = request.getParameter("student");
 		// 116020@im.dlmu.edu.cn = >116020
 
 		int start = 0;
@@ -43,7 +44,7 @@ public class OrgServlet extends AbstractImServlet {
 		}
 		PrintWriter out = response.getWriter();
 		try {
-			JSONObject l = plugin.org(pid);
+			JSONObject l = plugin.org(pid, isStudent);
 			out.println(l.toString());
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);
