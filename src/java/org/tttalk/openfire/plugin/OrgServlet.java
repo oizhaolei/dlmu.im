@@ -34,9 +34,9 @@ public class OrgServlet extends AbstractImServlet {
 
 		Log.info(request.toString());
 		String pid = request.getParameter("jid");
-		// org_116020@im.dlmu.edu.cn = >116020
+		// 116020@im.dlmu.edu.cn = >116020
 
-		int start = pid.indexOf("org_") + 4;
+		int start = 0;
 		int end = pid.indexOf("@");
 		if (start >= 0 && end >= start) {
 			pid = pid.substring(start, end);

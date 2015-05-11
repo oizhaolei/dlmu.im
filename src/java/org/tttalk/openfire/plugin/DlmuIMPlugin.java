@@ -64,7 +64,7 @@ public class DlmuIMPlugin implements Plugin {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  'org_'||CODE||'@"
+		String sql = "select  CODE||'@"
 				+ domain
 				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
@@ -96,7 +96,7 @@ public class DlmuIMPlugin implements Plugin {
 		JSONArray members = new JSONArray();
 
 		try {
-			String groupname = "org_" + pid;
+			String groupname = pid;
 			Group group = groupManager.getGroup(groupname);
 			for (JID jid : group.getMembers()) {
 				JSONObject row = new JSONObject();

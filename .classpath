@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="/works/source/xmpp/Openfire/work/lib/openfire.jar"/>
 	<classpathentry kind="lib" path="/works/source/xmpp/Openfire/work/lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/java-json.jar"/>
+	<classpathentry kind="lib" path="lib/http-request-5.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

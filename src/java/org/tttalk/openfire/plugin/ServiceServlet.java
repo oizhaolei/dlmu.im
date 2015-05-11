@@ -2,20 +2,21 @@ package org.tttalk.openfire.plugin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.jivesoftware.util.JiveGlobals;
 
 /**
  *
  */
 public class ServiceServlet extends AbstractImServlet {
 	private static final long serialVersionUID = 9008949607840140354L;
+	private static final String DLMU_SERVICE_ENTRY_POINT = "dlmu.service.entry.point";
 
 	@Override
 	String getUri() {
@@ -34,16 +35,14 @@ public class ServiceServlet extends AbstractImServlet {
 
 		PrintWriter out = response.getWriter();
 		try {
-			JSONArray data = new JSONArray();
-			JSONObject l;
-			for (int i = 0; i < 10; i++) {
-				l = new JSONObject();
-				l.put("jid", "service_" + i);
-				l.put("title", "title_" + i);
-				l.put("url", "http://dlmuim:9090/session-summary.jsp" + i);
-				data.put(l);
-			}
-			out.println(data.toString());
+			params = new HashMap<String, String>();
+			params.put("token", "11");
+			String res = Utils.get(JiveGlobals.getProperty(
+					DLMU_SERVICE_ENTRY_POINT,
+					"http://202.118.89.129/dlmu_rest_webservice/001001"),
+					params);
+
+			out.println(res);
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);
 		}

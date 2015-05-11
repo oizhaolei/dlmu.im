@@ -1,5 +1,6 @@
 package org.tttalk.openfire.plugin;
 
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.Map;
 import org.jivesoftware.util.JiveGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.kevinsawicki.http.HttpRequest;
 
 public class Utils {
 	private static final Logger log = LoggerFactory.getLogger(Utils.class);
@@ -76,6 +79,39 @@ public class Utils {
 	public static String getAppSecret() {
 		return JiveGlobals.getProperty(TTTALK_APP_SECRET,
 				"2a9304125e25edaa5aff574153eafc95c97672c6");
+	}
+
+	public static String encodeParameters(Map<String, String> params) {
+		StringBuffer buf = new StringBuffer();
+		String[] keyArray = params.keySet().toArray(new String[0]);
+		Arrays.sort(keyArray);
+		int j = 0;
+		for (String key : keyArray) {
+			String value = params.get(key);
+			if (j++ != 0) {
+				buf.append("&");
+			}
+			if (!Utils.isEmpty(value)) {
+				try {
+					buf.append(URLEncoder.encode(key, "UTF-8")).append("=")
+							.append(URLEncoder.encode(value, "UTF-8"));
+				} catch (java.io.UnsupportedEncodingException neverHappen) {
+					// throw new RuntimeException(neverHappen.getMessage(),
+					// neverHappen);
+				}
+			}
+		}
+
+		return buf.toString();
+	}
+
+	public static String get(String url, Map<String, String> params) {
+		url += "?" + Utils.encodeParameters(params);
+
+		log.info("get request=" + url);
+		String body = HttpRequest.get(url).body();
+		log.info("get response=" + body);
+		return body;
 	}
 
 }
