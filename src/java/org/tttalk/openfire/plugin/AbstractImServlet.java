@@ -48,7 +48,7 @@ public abstract class AbstractImServlet extends HttpServlet {
 		}
 	}
 
-	private Map<String, String> getParameterMap(HttpServletRequest request) {
+	protected Map<String, String> getParameterMap(HttpServletRequest request) {
 		Map<String, String> params = new HashMap<String, String>();
 		Enumeration<String> enumeration = request.getParameterNames();
 		while (enumeration.hasMoreElements()) {

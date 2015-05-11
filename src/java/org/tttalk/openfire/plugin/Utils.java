@@ -18,8 +18,8 @@ public class Utils {
 
 	public static boolean checkSign(Map<String, String> params) {
 		if (params.containsKey("sign") && params.containsKey("loginid")) {
-			String sign = params.get("sign");
 			String appkey = params.get("loginid");
+			String sign = params.remove("sign");
 
 			String sign2 = genSign(params, appkey);
 			return sign2.equals(sign);
@@ -42,7 +42,7 @@ public class Utils {
 			}
 		}
 		sb.append(getAppSecret());
-
+		log.info(sb.toString());
 		String sign = Utils.sha1(sb.toString());
 
 		return sign;

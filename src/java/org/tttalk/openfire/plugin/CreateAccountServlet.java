@@ -2,6 +2,7 @@ package org.tttalk.openfire.plugin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,11 @@ public class CreateAccountServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		Map<String, String> params = getParameterMap(request);
+		if (!Utils.checkSign(params)) {
+			response.getWriter().println("{}");
+			return;
+		}
 		Log.info(request.toString());
 
 		String username = request.getParameter("username");
