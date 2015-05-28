@@ -100,4 +100,15 @@
         <url-pattern>/userproperties</url-pattern>
     </servlet-mapping>
     
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>UserServlet</servlet-name>
+        <servlet-class>org.tttalk.openfire.plugin.UserServlet</servlet-class>
+    </servlet>
+    <!-- Servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>UserServlet</servlet-name>
+        <url-pattern>/user</url-pattern>
+    </servlet-mapping>
+    
 </web-app>
