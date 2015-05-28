@@ -28,25 +28,29 @@ public class LoginServlet extends AbstractImServlet {
 	@Override
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		Map<String, String> params = getParameterMap(request);
+		if (!Utils.checkSign(params)) {
+			response.getWriter().println("{}");
+			return;
+		}
 		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
-		String username = request.getParameter("username");
+		String userid = request.getParameter("userid");
 		String password = request.getParameter("password");
 
 		PrintWriter out = response.getWriter();
 		try {
 			JSONObject jo = new JSONObject();
-			jo.put("username", username);
+			jo.put("userid", userid);
 			jo.put("password", password);
 
-			final Map<String, String> params = new HashMap<String, String>();
-			params.put("userid", username);
-			params.put("passwd", password);
+			final Map<String, String> map = new HashMap<String, String>();
+			map.put("userid", userid);
+			map.put("passwd", password);
 			String res = Utils.get(JiveGlobals.getProperty(
 					DLMU_LOGIN_ENTRY_POINT,
-					"http://202.118.89.129/dlmu_rest_webservice/002001"),
-					params);
+					"http://202.118.89.129/dlmu_rest_webservice/002001"), map);
 
 			out.println(res);
 		} catch (JSONException e) {

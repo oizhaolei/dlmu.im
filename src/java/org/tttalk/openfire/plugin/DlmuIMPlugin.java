@@ -231,8 +231,4 @@ public class DlmuIMPlugin implements Plugin {
 		user.getProperties().put(key, value);
 	}
 
-	public JSONObject getUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

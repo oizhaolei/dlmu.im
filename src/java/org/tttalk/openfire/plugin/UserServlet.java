@@ -2,13 +2,14 @@ package org.tttalk.openfire.plugin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
+import org.jivesoftware.util.JiveGlobals;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UserServlet extends AbstractImServlet {
 	private static final long serialVersionUID = -9126153402683026148L;
+	private static final String DLMU_USER_ENTRY_POINT = "dlmu.user.entry.point";
 	private static final Logger Log = LoggerFactory
 			.getLogger(UserServlet.class);
 
@@ -28,13 +30,20 @@ public class UserServlet extends AbstractImServlet {
 			response.getWriter().println("{}");
 			return;
 		}
+		response.setCharacterEncoding("UTF-8");
 		Log.info(request.toString());
 
-		String username = request.getParameter("username");
+		String userid = request.getParameter("userid");
 		PrintWriter out = response.getWriter();
 		try {
-			JSONObject jo = plugin.getUser(username);
-			out.println(jo);
+			final Map<String, String> map = new HashMap<String, String>();
+			map.put("userid", userid);
+
+			String res = Utils.get(JiveGlobals.getProperty(
+					DLMU_USER_ENTRY_POINT,
+					"http://202.118.89.129/dlmu_rest_webservice/000102"), map);
+
+			out.println(res);
 		} catch (Exception e) {
 			out.println(e.getMessage());
 		}
