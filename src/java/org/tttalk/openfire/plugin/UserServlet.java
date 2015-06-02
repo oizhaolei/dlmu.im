@@ -38,7 +38,7 @@ public class UserServlet extends AbstractImServlet {
 		try {
 			final Map<String, String> map = new HashMap<String, String>();
 			map.put("userid", userid);
-
+			map.put("token", "1");
 			String res = Utils.get(JiveGlobals.getProperty(
 					DLMU_USER_ENTRY_POINT,
 					"http://202.118.89.129/dlmu_rest_webservice/000102"), map);
