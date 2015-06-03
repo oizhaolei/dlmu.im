@@ -31,8 +31,7 @@ import org.xmpp.packet.Message;
 public class DlmuIMPlugin implements Plugin {
 	public static final String PLUGIN_NAME = "dlmu.im";
 
-	private static final Logger log = LoggerFactory
-			.getLogger(DlmuIMPlugin.class);
+	private static final Logger log = LoggerFactory.getLogger(DlmuIMPlugin.class);
 
 	private UserManager userManager;
 	private GroupManager groupManager;
@@ -60,20 +59,17 @@ public class DlmuIMPlugin implements Plugin {
 		userManager = null;
 	}
 
-	public JSONObject org(String pid, String isStudent) throws Exception {
+	public JSONObject teacher(String pid) throws Exception {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@"
-				+ domain
-				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  CODE||'@" + domain + "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			conn = DbConnectionManager.getConnection();
-			ps = conn
-					.prepareStatement(sql);
+			ps = conn.prepareStatement(sql);
 			ps.setString(1, pid);
 			rs = ps.executeQuery();
 			while (rs.next()) {
@@ -81,8 +77,7 @@ public class DlmuIMPlugin implements Plugin {
 				String DEPARTNAME = rs.getString("DEPARTNAME");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME
-						.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
 				orgs.put(row);
@@ -104,7 +99,6 @@ public class DlmuIMPlugin implements Plugin {
 					String string = jid.toString();
 					String username = string.substring(0, string.indexOf('@'));
 					User user = userManager.getUser(username);
-
 					row.put("name", user.getName());
 
 				} catch (Exception e) {
@@ -121,8 +115,146 @@ public class DlmuIMPlugin implements Plugin {
 		return result;
 	}
 
-	public JSONArray search(String s, String t) throws JSONException,
-			SQLException {
+	public JSONObject studentClass(String college, String njdm, String bjh) throws Exception {
+		JSONObject result = new JSONObject();
+		JSONArray orgs = new JSONArray();
+		String sql = "";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DbConnectionManager.getConnection();
+			// 显示学院
+			if (college == null) {
+				sql = "select distinct depid||'@" + domain
+						+ "' as CODE ,glz as DEPARTNAME from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
+				ps = conn.prepareStatement(sql);
+			}
+			// 显示年级
+			if (college != null && njdm == null) {
+				sql = "select distinct substr(bh,3,4)||'@" + domain
+						+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, college);
+			}
+			// 显示班级
+			if (college != null && njdm != null && bjh == null) {
+				sql = "select distinct bh||'@" + domain
+						+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, college);
+				ps.setString(2, njdm);
+			}
+			
+			// 显示班级里面的学生
+			if (bjh != null) {
+				sql = "select xh||'@" + domain
+						+ "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, college);
+				ps.setString(2, njdm);
+			}
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String CODE = rs.getString("CODE");
+				String DEPARTNAME = rs.getString("DEPARTNAME");
+				JSONObject row = new JSONObject();
+				row.put("jid", CODE);
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				log.debug(row.toString());
+
+				orgs.put(row);
+			}
+			rs.close();
+			ps.close();
+		} finally {
+			DbConnectionManager.closeConnection(rs, ps, conn);
+		}
+
+		JSONArray members = new JSONArray();
+		
+		try {
+			String groupname = bjh;
+			Group group = groupManager.getGroup(groupname);
+			for (JID jid : group.getMembers()) {
+				JSONObject row = new JSONObject();
+				try {
+					String string = jid.toString();
+					String username = string.substring(0, string.indexOf('@'));
+					User user = userManager.getUser(username);
+					row.put("name", user.getName());
+
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+				row.put("jid", jid);
+				members.put(row);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		result.put("orgs", orgs);
+		result.put("members", members);
+		return result;
+	}
+
+	public JSONObject studentCourse(String pid, String isStudent) throws Exception {
+		JSONObject result = new JSONObject();
+
+		JSONArray orgs = new JSONArray();
+		String sql = "select  CODE||'@" + domain + "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DbConnectionManager.getConnection();
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, pid);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String CODE = rs.getString("CODE");
+				String DEPARTNAME = rs.getString("DEPARTNAME");
+				JSONObject row = new JSONObject();
+				row.put("jid", CODE);
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				log.debug(row.toString());
+
+				orgs.put(row);
+			}
+			rs.close();
+			ps.close();
+		} finally {
+			DbConnectionManager.closeConnection(rs, ps, conn);
+		}
+
+		JSONArray members = new JSONArray();
+
+		try {
+			String groupname = pid;
+			Group group = groupManager.getGroup(groupname);
+			for (JID jid : group.getMembers()) {
+				JSONObject row = new JSONObject();
+				try {
+					String string = jid.toString();
+					String username = string.substring(0, string.indexOf('@'));
+					User user = userManager.getUser(username);
+					row.put("name", user.getName());
+
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
+				row.put("jid", jid);
+				members.put(row);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		result.put("orgs", orgs);
+		result.put("members", members);
+		return result;
+	}
+
+	public JSONArray search(String s, String t) throws JSONException, SQLException {
 		JSONArray results = new JSONArray();
 		// Collection<User> users = userManager.getUsers();
 		// for (User user : users) {
@@ -167,8 +299,7 @@ public class DlmuIMPlugin implements Plugin {
 		return results;
 	}
 
-	public JSONArray send(String from_jid, String to_group, String subject,
-			String body) throws Exception {
+	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
 		JSONArray users = new JSONArray();
 
 		Group group = groupManager.getGroup(to_group);
@@ -201,8 +332,7 @@ public class DlmuIMPlugin implements Plugin {
 	public void createAccount(String username, String password) {
 		try {
 			User user = userManager.createUser(username, password, null, null);
-			log.info(String.format("createAccount:%s,%s", user.getUID(),
-					user.getUsername()));
+			log.info(String.format("createAccount:%s,%s", user.getUID(), user.getUsername()));
 		} catch (UserAlreadyExistsException e) {
 			log.info(username + " UserAlreadyExists.");
 			changePassword(username, password);
@@ -225,8 +355,7 @@ public class DlmuIMPlugin implements Plugin {
 		}
 	}
 
-	public void updateProperty(String username, String key, String value)
-			throws UserNotFoundException {
+	public void updateProperty(String username, String key, String value) throws UserNotFoundException {
 		User user = userManager.getUser(username);
 		user.getProperties().put(key, value);
 	}

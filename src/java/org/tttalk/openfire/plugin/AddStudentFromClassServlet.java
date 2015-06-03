@@ -13,12 +13,12 @@ import org.json.JSONObject;
 /**
  *
  */
-public class OrgServlet extends AbstractImServlet {
+public class AddStudentFromClassServlet extends AbstractImServlet {
 	private static final long serialVersionUID = 9008949607840140354L;
 
 	@Override
 	String getUri() {
-		return "/org";
+		return "/addStudentFromClass";
 	}
 
 	@Override
@@ -32,22 +32,22 @@ public class OrgServlet extends AbstractImServlet {
 		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
-		String pid = request.getParameter("jid");
-		String isStudent = request.getParameter("student");
+		String college = request.getParameter("college");
+		String njdm = request.getParameter("njdm");
+		String bjh = request.getParameter("bjh");
 		// 116020@im.dlmu.edu.cn = >116020
 
-		int start = 0;
-		int end = pid.indexOf("@");
-		if (start >= 0 && end >= start) {
-			pid = pid.substring(start, end);
-		}
+		// int start = 0;
+		// int end = pid.indexOf("@");
+		// if (start >= 0 && end >= start) {
+		// pid = pid.substring(start, end);
+		// }
 		PrintWriter out = response.getWriter();
 		try {
-			JSONObject l = plugin.teacher(pid);
+			JSONObject l = plugin.studentClass(college, njdm, bjh);
 			out.println(l.toString());
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);
 		}
 	}
-
 }
