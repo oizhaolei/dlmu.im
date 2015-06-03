@@ -13,16 +13,17 @@ import org.json.JSONObject;
 /**
  *
  */
-public class AddStudentFromClassServlet extends AbstractImServlet {
+public class StudentFromClassServlet extends AbstractImServlet {
 	private static final long serialVersionUID = 9008949607840140354L;
 
 	@Override
 	String getUri() {
-		return "/addStudentFromClass";
+		return "/student1";
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		Map<String, String> params = getParameterMap(request);
 		if (!Utils.checkSign(params)) {
 			response.getWriter().println("{}");
@@ -33,8 +34,8 @@ public class AddStudentFromClassServlet extends AbstractImServlet {
 
 		Log.info(request.toString());
 		String jid = request.getParameter("jid");
-		//String njdm = request.getParameter("njdm");
-		//String bjh = request.getParameter("bjh");
+		// String njdm = request.getParameter("njdm");
+		// String bjh = request.getParameter("bjh");
 		// 116020@im.dlmu.edu.cn = >116020
 
 		// int start = 0;

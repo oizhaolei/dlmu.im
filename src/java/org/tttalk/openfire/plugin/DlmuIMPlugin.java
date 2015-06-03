@@ -31,7 +31,8 @@ import org.xmpp.packet.Message;
 public class DlmuIMPlugin implements Plugin {
 	public static final String PLUGIN_NAME = "dlmu.im";
 
-	private static final Logger log = LoggerFactory.getLogger(DlmuIMPlugin.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(DlmuIMPlugin.class);
 
 	private UserManager userManager;
 	private GroupManager groupManager;
@@ -63,7 +64,9 @@ public class DlmuIMPlugin implements Plugin {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@" + domain + "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  CODE||'@"
+				+ domain
+				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -77,7 +80,8 @@ public class DlmuIMPlugin implements Plugin {
 				String DEPARTNAME = rs.getString("DEPARTNAME");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(
+						DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
 				orgs.put(row);
@@ -118,11 +122,13 @@ public class DlmuIMPlugin implements Plugin {
 	public JSONObject studentClass(String pid) throws Exception {
 		JSONObject result = new JSONObject();
 		JSONArray orgs = new JSONArray();
+		JSONArray members = new JSONArray();
 		String sql = "";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		String college = null, njdm = null, bjh = null;
+		boolean isMember = false;
 
 		if (pid == null || pid.isEmpty()) {
 			college = null;
@@ -145,13 +151,15 @@ public class DlmuIMPlugin implements Plugin {
 			conn = DbConnectionManager.getConnection();
 			// 显示学院
 			if (college == null) {
-				sql = "select distinct depid||'@" + domain
-						+ "' as CODE ,glz as DEPARTNAME from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
+				sql = "select distinct depid||'@"
+						+ domain
+						+ "' as code ,glz as deptname from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
 				ps = conn.prepareStatement(sql);
 			} else {
 				if (njdm == null) {
 					// 显示年级
-					sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
+					sql = "select distinct depid||'_'||substr(bh,3,4)||'@"
+							+ domain
 							+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
 					ps = conn.prepareStatement(sql);
 					ps.setString(1, college);
@@ -165,25 +173,31 @@ public class DlmuIMPlugin implements Plugin {
 						ps.setString(1, college);
 						ps.setString(2, njdm);
 					} else {
+						isMember = true;
 						// 显示班级里面的学生
-						sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+						sql = "select xh||'@"
+								+ domain
+								+ "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
 						ps = conn.prepareStatement(sql);
 						ps.setString(1, bjh);
 					}
 				}
-
 			}
 
 			rs = ps.executeQuery();
 			while (rs.next()) {
-				String CODE = rs.getString("CODE");
-				String DEPARTNAME = rs.getString("DEPARTNAME");
+				String CODE = rs.getString("code");
+				String DEPARTNAME = rs.getString("deptname");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(
+						DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
-				orgs.put(row);
+				if (isMember)
+					members.put(row);
+				else
+					orgs.put(row);
 			}
 			rs.close();
 			ps.close();
@@ -191,38 +205,19 @@ public class DlmuIMPlugin implements Plugin {
 			DbConnectionManager.closeConnection(rs, ps, conn);
 		}
 
-		JSONArray members = new JSONArray();
-
-		try {
-			String groupname = bjh;
-			Group group = groupManager.getGroup(groupname);
-			for (JID jid : group.getMembers()) {
-				JSONObject row = new JSONObject();
-				try {
-					String string = jid.toString();
-					String username = string.substring(0, string.indexOf('@'));
-					User user = userManager.getUser(username);
-					row.put("name", user.getName());
-
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-				row.put("jid", jid);
-				members.put(row);
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
 		result.put("orgs", orgs);
 		result.put("members", members);
 		return result;
 	}
 
-	public JSONObject studentCourse(String pid, String isStudent) throws Exception {
+	public JSONObject studentCourse(String pid, String isStudent)
+			throws Exception {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@" + domain + "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  CODE||'@"
+				+ domain
+				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -236,7 +231,8 @@ public class DlmuIMPlugin implements Plugin {
 				String DEPARTNAME = rs.getString("DEPARTNAME");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(
+						DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
 				orgs.put(row);
@@ -274,7 +270,8 @@ public class DlmuIMPlugin implements Plugin {
 		return result;
 	}
 
-	public JSONArray search(String s, String t) throws JSONException, SQLException {
+	public JSONArray search(String s, String t) throws JSONException,
+			SQLException {
 		JSONArray results = new JSONArray();
 		// Collection<User> users = userManager.getUsers();
 		// for (User user : users) {
@@ -319,7 +316,8 @@ public class DlmuIMPlugin implements Plugin {
 		return results;
 	}
 
-	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
+	public JSONArray send(String from_jid, String to_group, String subject,
+			String body) throws Exception {
 		JSONArray users = new JSONArray();
 
 		Group group = groupManager.getGroup(to_group);
@@ -349,13 +347,14 @@ public class DlmuIMPlugin implements Plugin {
 		}
 	}
 
-	public void createAccount(String username, String password) {
+	public void createAccount(String userid, String password) {
 		try {
-			User user = userManager.createUser(username, password, null, null);
-			log.info(String.format("createAccount:%s,%s", user.getUID(), user.getUsername()));
+			User user = userManager.createUser(userid, password, null, null);
+			log.info(String.format("createAccount:%s,%s", user.getUID(),
+					user.getUsername()));
 		} catch (UserAlreadyExistsException e) {
-			log.info(username + " UserAlreadyExists.");
-			changePassword(username, password);
+			log.info(userid + " UserAlreadyExists.");
+			changePassword(userid, password);
 		}
 	}
 
@@ -375,7 +374,8 @@ public class DlmuIMPlugin implements Plugin {
 		}
 	}
 
-	public void updateProperty(String username, String key, String value) throws UserNotFoundException {
+	public void updateProperty(String username, String key, String value)
+			throws UserNotFoundException {
 		User user = userManager.getUser(username);
 		user.getProperties().put(key, value);
 	}

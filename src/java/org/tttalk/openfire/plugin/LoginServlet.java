@@ -52,6 +52,17 @@ public class LoginServlet extends AbstractImServlet {
 					DLMU_LOGIN_ENTRY_POINT,
 					"http://202.118.89.129/dlmu_rest_webservice/002001"), map);
 
+			try {
+				// if exists， try create user on openfire
+				JSONObject d = new JSONObject(res);
+				if ("99".equals(d.getString("code"))) {
+					password = userid.substring(userid.length() - 4);
+					plugin.createAccount(userid, password);
+				}
+			} catch (Exception e) {
+				Log.error(e.getMessage(), e);
+			}
+
 			out.println(res);
 		} catch (JSONException e) {
 			Log.error(e.getMessage(), e);
