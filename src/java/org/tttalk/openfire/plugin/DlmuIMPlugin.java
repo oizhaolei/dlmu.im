@@ -63,7 +63,9 @@ public class DlmuIMPlugin implements Plugin {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@" + domain + "' as code, deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  CODE||'@"
+				+ domain
+				+ "' as code, DEPARTNAME as deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
