@@ -148,30 +148,32 @@ public class DlmuIMPlugin implements Plugin {
 				sql = "select distinct depid||'@" + domain
 						+ "' as CODE ,glz as DEPARTNAME from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
 				ps = conn.prepareStatement(sql);
-			}
-			// 显示年级
-			if (college != null && njdm == null) {
-				sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
-						+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
-				ps = conn.prepareStatement(sql);
-				ps.setString(1, college);
-			}
-			// 显示班级
-			if (college != null && njdm != null && bjh == null) {
-				sql = "select distinct depid||'_'||substr(bh,3,4)||'_'||bh||'@" + domain
-						+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
-				ps = conn.prepareStatement(sql);
-				ps.setString(1, college);
-				ps.setString(2, njdm);
+			} else {
+				if (njdm == null) {
+					// 显示年级
+					sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
+							+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
+					ps = conn.prepareStatement(sql);
+					ps.setString(1, college);
+				} else {
+					// 显示班级
+					if (bjh == null) {
+						sql = "select distinct depid||'_'||substr(bh,3,4)||'_'||bh||'@"
+								+ domain
+								+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
+						ps = conn.prepareStatement(sql);
+						ps.setString(1, college);
+						ps.setString(2, njdm);
+					} else {
+						// 显示班级里面的学生
+						sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+						ps = conn.prepareStatement(sql);
+						ps.setString(1, bjh);
+					}
+				}
+
 			}
 
-			// 显示班级里面的学生
-			if (bjh != null) {
-				sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
-				ps = conn.prepareStatement(sql);
-				ps.setString(1, college);
-				ps.setString(2, njdm);
-			}
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				String CODE = rs.getString("CODE");
