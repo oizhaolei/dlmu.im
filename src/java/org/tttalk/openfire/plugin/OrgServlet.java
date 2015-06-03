@@ -22,7 +22,8 @@ public class OrgServlet extends AbstractImServlet {
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		Map<String, String> params = getParameterMap(request);
 		if (!Utils.checkSign(params)) {
 			response.getWriter().println("{}");
@@ -36,14 +37,24 @@ public class OrgServlet extends AbstractImServlet {
 		String isStudent = request.getParameter("student");
 		// 116020@im.dlmu.edu.cn = >116020
 
-		int start = 0;
-		int end = pid.indexOf("@");
-		if (start >= 0 && end >= start) {
-			pid = pid.substring(start, end);
+		try {
+			int start = 0;
+			int end = pid.indexOf("@");
+			if (start >= 0 && end >= start) {
+				pid = pid.substring(start, end);
+			}
+		} catch (Exception e1) {
 		}
 		PrintWriter out = response.getWriter();
 		try {
-			JSONObject l = plugin.teacher(pid);
+			JSONObject l;
+			if ("student_class".equals(isStudent)) {
+				l = plugin.studentClass(pid);
+			} else if ("student_course".equals(isStudent)) {
+				l = plugin.studentCourse(pid);
+			} else {
+				l = plugin.teacher(pid);
+			}
 			out.println(l.toString());
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);

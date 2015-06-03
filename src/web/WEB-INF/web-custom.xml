@@ -111,15 +111,5 @@
         <url-pattern>/user</url-pattern>
     </servlet-mapping>
     
-    <!-- Servlets -->
-    <servlet>
-        <servlet-name>StudentFromClassServlet</servlet-name>
-        <servlet-class>org.tttalk.openfire.plugin.StudentFromClassServlet</servlet-class>
-    </servlet>
-    <!-- Servlet mappings -->
-    <servlet-mapping>
-        <servlet-name>StudentFromClassServlet</servlet-name>
-        <url-pattern>/student1</url-pattern>
-    </servlet-mapping>
-    
+ 
 </web-app>

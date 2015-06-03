@@ -66,7 +66,7 @@ public class DlmuIMPlugin implements Plugin {
 		JSONArray orgs = new JSONArray();
 		String sql = "select  CODE||'@"
 				+ domain
-				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
+				+ "' as code, deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -76,8 +76,8 @@ public class DlmuIMPlugin implements Plugin {
 			ps.setString(1, pid);
 			rs = ps.executeQuery();
 			while (rs.next()) {
-				String CODE = rs.getString("CODE");
-				String DEPARTNAME = rs.getString("DEPARTNAME");
+				String CODE = rs.getString("code");
+				String DEPARTNAME = rs.getString("deptname");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
 				row.put("name", StringUtils.escapeHTMLTags(new String(
@@ -210,63 +210,9 @@ public class DlmuIMPlugin implements Plugin {
 		return result;
 	}
 
-	public JSONObject studentCourse(String pid, String isStudent)
-			throws Exception {
+	public JSONObject studentCourse(String pid) throws Exception {
 		JSONObject result = new JSONObject();
 
-		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@"
-				+ domain
-				+ "' as CODE, DEPARTNAME from RS_OU_DEPARTMENT where PARENTCODE = ?";
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			conn = DbConnectionManager.getConnection();
-			ps = conn.prepareStatement(sql);
-			ps.setString(1, pid);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				String CODE = rs.getString("CODE");
-				String DEPARTNAME = rs.getString("DEPARTNAME");
-				JSONObject row = new JSONObject();
-				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(
-						DEPARTNAME.getBytes(), "UTF-8")));
-				log.debug(row.toString());
-
-				orgs.put(row);
-			}
-			rs.close();
-			ps.close();
-		} finally {
-			DbConnectionManager.closeConnection(rs, ps, conn);
-		}
-
-		JSONArray members = new JSONArray();
-
-		try {
-			String groupname = pid;
-			Group group = groupManager.getGroup(groupname);
-			for (JID jid : group.getMembers()) {
-				JSONObject row = new JSONObject();
-				try {
-					String string = jid.toString();
-					String username = string.substring(0, string.indexOf('@'));
-					User user = userManager.getUser(username);
-					row.put("name", user.getName());
-
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-				row.put("jid", jid);
-				members.put(row);
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-		result.put("orgs", orgs);
-		result.put("members", members);
 		return result;
 	}
 
