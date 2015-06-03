@@ -31,8 +31,7 @@ import org.xmpp.packet.Message;
 public class DlmuIMPlugin implements Plugin {
 	public static final String PLUGIN_NAME = "dlmu.im";
 
-	private static final Logger log = LoggerFactory
-			.getLogger(DlmuIMPlugin.class);
+	private static final Logger log = LoggerFactory.getLogger(DlmuIMPlugin.class);
 
 	private UserManager userManager;
 	private GroupManager groupManager;
@@ -64,9 +63,7 @@ public class DlmuIMPlugin implements Plugin {
 		JSONObject result = new JSONObject();
 
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@"
-				+ domain
-				+ "' as code, deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		String sql = "select  CODE||'@" + domain + "' as code, deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -80,8 +77,7 @@ public class DlmuIMPlugin implements Plugin {
 				String DEPARTNAME = rs.getString("deptname");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(
-						DEPARTNAME.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
 				orgs.put(row);
@@ -151,15 +147,13 @@ public class DlmuIMPlugin implements Plugin {
 			conn = DbConnectionManager.getConnection();
 			// 显示学院
 			if (college == null) {
-				sql = "select distinct depid||'@"
-						+ domain
+				sql = "select distinct depid||'@" + domain
 						+ "' as code ,glz as deptname from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
 				ps = conn.prepareStatement(sql);
 			} else {
 				if (njdm == null) {
 					// 显示年级
-					sql = "select distinct depid||'_'||substr(bh,3,4)||'@"
-							+ domain
+					sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
 							+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
 					ps = conn.prepareStatement(sql);
 					ps.setString(1, college);
@@ -175,9 +169,7 @@ public class DlmuIMPlugin implements Plugin {
 					} else {
 						isMember = true;
 						// 显示班级里面的学生
-						sql = "select xh||'@"
-								+ domain
-								+ "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+						sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
 						ps = conn.prepareStatement(sql);
 						ps.setString(1, bjh);
 					}
@@ -190,8 +182,7 @@ public class DlmuIMPlugin implements Plugin {
 				String DEPARTNAME = rs.getString("deptname");
 				JSONObject row = new JSONObject();
 				row.put("jid", CODE);
-				row.put("name", StringUtils.escapeHTMLTags(new String(
-						DEPARTNAME.getBytes(), "UTF-8")));
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
 				if (isMember)
@@ -212,12 +203,64 @@ public class DlmuIMPlugin implements Plugin {
 
 	public JSONObject studentCourse(String pid) throws Exception {
 		JSONObject result = new JSONObject();
+		JSONArray orgs = new JSONArray();
+		JSONArray members = new JSONArray();
+		String sql = "";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		boolean isMember = false;
 
+		try {
+			conn = DbConnectionManager.getConnection();
+			if (pid.indexOf("_") == 0) {
+				sql = "select distinct zxjxjhh||'_'||kch||'_'||jsh||'_'||skxq||'_'||skjc||'@"
+						+ domain
+						+ "' as code ,kcm||'/星期'||skxq||'/第'||skjc deptname FROM ecard.datact_SI_JW_JXRW_XSKCB_V where jsh=? and zxjxjhh='2014-2015-2-1' order by kch,skxq,skjc";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, pid);
+			} else {
+				isMember = true;
+				String[] p = pid.split("_");
+				
+				// 显示班级里面的学生
+				sql = "select xh||'@"
+						+ domain
+						+ "' as code, xm as deptname from ecard.datact_SI_JW_JXRW_XSKCB_V where zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, p[0]);
+				ps.setString(2, p[1]);
+				ps.setString(3, p[2]);
+				ps.setString(4, p[3]);
+				ps.setString(5, p[4]);
+			}
+
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				String CODE = rs.getString("code");
+				String DEPARTNAME = rs.getString("deptname");
+				JSONObject row = new JSONObject();
+				row.put("jid", CODE);
+				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
+				log.debug(row.toString());
+
+				if (isMember)
+					members.put(row);
+				else
+					orgs.put(row);
+			}
+			rs.close();
+			ps.close();
+		} finally {
+			DbConnectionManager.closeConnection(rs, ps, conn);
+		}
+
+		result.put("orgs", orgs);
+		result.put("members", members);
 		return result;
 	}
 
-	public JSONArray search(String s, String t) throws JSONException,
-			SQLException {
+	public JSONArray search(String s, String t) throws JSONException, SQLException {
 		JSONArray results = new JSONArray();
 		// Collection<User> users = userManager.getUsers();
 		// for (User user : users) {
@@ -262,8 +305,7 @@ public class DlmuIMPlugin implements Plugin {
 		return results;
 	}
 
-	public JSONArray send(String from_jid, String to_group, String subject,
-			String body) throws Exception {
+	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
 		JSONArray users = new JSONArray();
 
 		Group group = groupManager.getGroup(to_group);
@@ -296,8 +338,7 @@ public class DlmuIMPlugin implements Plugin {
 	public void createAccount(String userid, String password) {
 		try {
 			User user = userManager.createUser(userid, password, null, null);
-			log.info(String.format("createAccount:%s,%s", user.getUID(),
-					user.getUsername()));
+			log.info(String.format("createAccount:%s,%s", user.getUID(), user.getUsername()));
 		} catch (UserAlreadyExistsException e) {
 			log.info(userid + " UserAlreadyExists.");
 			changePassword(userid, password);
@@ -320,8 +361,7 @@ public class DlmuIMPlugin implements Plugin {
 		}
 	}
 
-	public void updateProperty(String username, String key, String value)
-			throws UserNotFoundException {
+	public void updateProperty(String username, String key, String value) throws UserNotFoundException {
 		User user = userManager.getUser(username);
 		user.getProperties().put(key, value);
 	}
