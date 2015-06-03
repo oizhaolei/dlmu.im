@@ -32,9 +32,9 @@ public class AddStudentFromClassServlet extends AbstractImServlet {
 		response.setCharacterEncoding("UTF-8");
 
 		Log.info(request.toString());
-		String college = request.getParameter("college");
-		String njdm = request.getParameter("njdm");
-		String bjh = request.getParameter("bjh");
+		String jid = request.getParameter("jid");
+		//String njdm = request.getParameter("njdm");
+		//String bjh = request.getParameter("bjh");
 		// 116020@im.dlmu.edu.cn = >116020
 
 		// int start = 0;
@@ -44,7 +44,7 @@ public class AddStudentFromClassServlet extends AbstractImServlet {
 		// }
 		PrintWriter out = response.getWriter();
 		try {
-			JSONObject l = plugin.studentClass(college, njdm, bjh);
+			JSONObject l = plugin.studentClass(jid);
 			out.println(l.toString());
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);

@@ -115,13 +115,32 @@ public class DlmuIMPlugin implements Plugin {
 		return result;
 	}
 
-	public JSONObject studentClass(String college, String njdm, String bjh) throws Exception {
+	public JSONObject studentClass(String pid) throws Exception {
 		JSONObject result = new JSONObject();
 		JSONArray orgs = new JSONArray();
 		String sql = "";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
+		String college = null, njdm = null, bjh = null;
+
+		if (pid == null || pid.isEmpty()) {
+			college = null;
+		} else {
+			String[] p = pid.split("_");
+			if (p.length == 1)
+				college = p[0];
+			if (p.length == 2) {
+				college = p[0];
+				njdm = p[1];
+			}
+			if (p.length == 3) {
+				college = p[0];
+				njdm = p[1];
+				bjh = p[2];
+			}
+		}
+
 		try {
 			conn = DbConnectionManager.getConnection();
 			// 显示学院
@@ -132,24 +151,23 @@ public class DlmuIMPlugin implements Plugin {
 			}
 			// 显示年级
 			if (college != null && njdm == null) {
-				sql = "select distinct substr(bh,3,4)||'@" + domain
+				sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
 						+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, college);
 			}
 			// 显示班级
 			if (college != null && njdm != null && bjh == null) {
-				sql = "select distinct bh||'@" + domain
+				sql = "select distinct depid||'_'||substr(bh,3,4)||'_'||bh||'@" + domain
 						+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, college);
 				ps.setString(2, njdm);
 			}
-			
+
 			// 显示班级里面的学生
 			if (bjh != null) {
-				sql = "select xh||'@" + domain
-						+ "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+				sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, college);
 				ps.setString(2, njdm);
@@ -172,7 +190,7 @@ public class DlmuIMPlugin implements Plugin {
 		}
 
 		JSONArray members = new JSONArray();
-		
+
 		try {
 			String groupname = bjh;
 			Group group = groupManager.getGroup(groupname);
