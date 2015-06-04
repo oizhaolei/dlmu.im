@@ -60,17 +60,34 @@ public class DlmuIMPlugin implements Plugin {
 	}
 
 	public JSONObject teacher(String pid) throws Exception {
-		JSONObject result = new JSONObject();
 
+		JSONObject result = new JSONObject();
 		JSONArray orgs = new JSONArray();
-		String sql = "select  CODE||'@" + domain + "' as code, deptname from RS_OU_DEPARTMENT where PARENTCODE = ?";
+		JSONArray members = new JSONArray();
+		String sql = "";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
+		boolean isMember = false;
+
 		try {
+
 			conn = DbConnectionManager.getConnection();
-			ps = conn.prepareStatement(sql);
-			ps.setString(1, pid);
+			if (pid.indexOf("_") == 0) {
+				sql = "select  CODE||'_'||departlevel||'@" + domain
+						+ "' as code, departname as deptname from ecard.DATACT_RS_OU_DEPARTMENT_V where code!='123000' and PARENTCODE = ?";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, pid);
+			} else {
+				String p[] = pid.split("_");
+				if (p[1].equals(2))
+					isMember = true;
+
+				// 显示部门内的学生
+				sql = "select gh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_RS_HR_TEACHER_JZGJCXX_V where dwm=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, p[0]);
+			}
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				String CODE = rs.getString("code");
@@ -80,7 +97,10 @@ public class DlmuIMPlugin implements Plugin {
 				row.put("name", StringUtils.escapeHTMLTags(new String(DEPARTNAME.getBytes(), "UTF-8")));
 				log.debug(row.toString());
 
-				orgs.put(row);
+				if (isMember)
+					members.put(row);
+				else
+					orgs.put(row);
 			}
 			rs.close();
 			ps.close();
@@ -88,31 +108,10 @@ public class DlmuIMPlugin implements Plugin {
 			DbConnectionManager.closeConnection(rs, ps, conn);
 		}
 
-		JSONArray members = new JSONArray();
-
-		try {
-			String groupname = pid;
-			Group group = groupManager.getGroup(groupname);
-			for (JID jid : group.getMembers()) {
-				JSONObject row = new JSONObject();
-				try {
-					String string = jid.toString();
-					String username = string.substring(0, string.indexOf('@'));
-					User user = userManager.getUser(username);
-					row.put("name", user.getName());
-
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
-				row.put("jid", jid);
-				members.put(row);
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
 		result.put("orgs", orgs);
 		result.put("members", members);
 		return result;
+
 	}
 
 	public JSONObject studentClass(String pid) throws Exception {
@@ -216,17 +215,17 @@ public class DlmuIMPlugin implements Plugin {
 			if (pid.indexOf("_") == 0) {
 				sql = "select distinct zxjxjhh||'_'||kch||'_'||jsh||'_'||skxq||'_'||skjc||'@"
 						+ domain
-						+ "' as code ,kcm||'/星期'||skxq||'/第'||skjc deptname FROM ecard.datact_SI_JW_JXRW_XSKCB_V where jsh=? and zxjxjhh='2014-2015-2-1' order by kch,skxq,skjc";
+						+ "' as code ,kcm||'/星期'||skxq||'/第'||skjc||'节' deptname FROM ecard.datact_SI_JW_JXRW_XSKCB_V where jsh=? and zxjxjhh='2014-2015-2-1' order by code";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, pid);
 			} else {
 				isMember = true;
 				String[] p = pid.split("_");
-				
+
 				// 显示班级里面的学生
-				sql = "select xh||'@"
+				sql = "select t1.xh||'@"
 						+ domain
-						+ "' as code, xm as deptname from ecard.datact_SI_JW_JXRW_XSKCB_V where zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
+						+ "' as code, t2.xm as deptname from ecard.datact_SI_JW_JXRW_XSKCB_V t1, ecard.DATACT_JW_XS_XJB t2 where t2.xh=t1.xh and zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, p[0]);
 				ps.setString(2, p[1]);
