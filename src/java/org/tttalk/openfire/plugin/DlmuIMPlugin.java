@@ -73,10 +73,10 @@ public class DlmuIMPlugin implements Plugin {
 
 			conn = DbConnectionManager.getConnection();
 			if (pid.indexOf("_") == -1) {
-				sql = "select  CODE||'_'||departlevel||'@" + domain
+				sql = "select  'G0'||CODE||'_'||departlevel||'@" + domain
 						+ "' as code, departname as deptname from ecard.DATACT_RS_OU_DEPARTMENT_V where code!='123000' and PARENTCODE = ?";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, pid);
+				ps.setString(1, pid.substring(3));
 			} else {
 				String p[] = pid.split("_");
 				if (p[1].equals("2"))
@@ -85,7 +85,7 @@ public class DlmuIMPlugin implements Plugin {
 				// 显示部门内老师
 				sql = "select gh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_RS_HR_TEACHER_JZGJCXX_V where dwm=? order by code";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, p[0]);
+				ps.setString(1, p[0].substring(3));
 			}
 			rs = ps.executeQuery();
 			while (rs.next()) {
@@ -145,24 +145,24 @@ public class DlmuIMPlugin implements Plugin {
 			conn = DbConnectionManager.getConnection();
 			// 显示学院
 			if (college == null) {
-				sql = "select distinct depid||'@" + domain
+				sql = "select distinct 'G1'||depid||'@" + domain
 						+ "' as code ,glz as deptname from ecard.DATACT_GY_CLASSLIST_V t where glz is not null order by code ";
 				ps = conn.prepareStatement(sql);
 			} else {
 				if (njdm == null) {
 					// 显示年级
-					sql = "select distinct depid||'_'||substr(bh,3,4)||'@" + domain
+					sql = "select distinct 'G1'||depid||'_'||substr(bh,3,4)||'@" + domain
 							+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
 					ps = conn.prepareStatement(sql);
-					ps.setString(1, college);
+					ps.setString(1, college.substring(3));
 				} else {
 					// 显示班级
 					if (bjh == null) {
-						sql = "select distinct depid||'_'||substr(bh,3,4)||'_'||bh||'@"
+						sql = "select distinct 'G1'||depid||'_'||substr(bh,3,4)||'_'||bh||'@"
 								+ domain
 								+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
 						ps = conn.prepareStatement(sql);
-						ps.setString(1, college);
+						ps.setString(1, college.substring(3));
 						ps.setString(2, njdm);
 					} else {
 						isMember = true;
@@ -212,7 +212,7 @@ public class DlmuIMPlugin implements Plugin {
 		try {
 			conn = DbConnectionManager.getConnection();
 			if (pid.indexOf("_") == -1) {
-				sql = "select distinct zxjxjhh||'_'||kch||'_'||jsh||'_'||skxq||'_'||skjc||'@"
+				sql = "select distinct 'G2'||zxjxjhh||'_'||kch||'_'||jsh||'_'||skxq||'_'||skjc||'@"
 						+ domain
 						+ "' as code ,kcm||'/星期'||skxq||'/第'||skjc||'节' deptname FROM ecard.datact_SI_JW_JXRW_XSKCB_V where jsh=? and zxjxjhh='2014-2015-2-1' order by code";
 				ps = conn.prepareStatement(sql);
@@ -226,7 +226,7 @@ public class DlmuIMPlugin implements Plugin {
 						+ domain
 						+ "' as code, t2.xm as deptname from ecard.datact_SI_JW_JXRW_XSKCB_V t1, ecard.DATACT_JW_XS_XJB t2 where t2.xh=t1.xh and zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, p[0]);
+				ps.setString(1, p[0].substring(3));
 				ps.setString(2, p[1]);
 				ps.setString(3, p[2]);
 				ps.setString(4, p[3]);
@@ -305,19 +305,112 @@ public class DlmuIMPlugin implements Plugin {
 
 	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
 		JSONArray users = new JSONArray();
-
-		Group group = groupManager.getGroup(to_group);
-		Collection<JID> members = group.getMembers();
+		String prefix = to_group.substring(1, 2);
+		String gid = to_group.substring(3);
+		System.out.println("----------togroup---------" + to_group);
+		System.out.println("----------prefix---------" + prefix);
+		System.out.println("----------gid---------" + gid);
 		Message message = new Message();
 		message.setFrom(from_jid);
 		message.setSubject(subject);
 		message.setBody(body);
-		for (JID jid : members) {
-			message.setTo(jid);
-			users.put(jid.toString());
-			router.route(message);
+		if (prefix.equals("G0")) {
+			// 找老师，目前只允许发送到部门级别
+			String sql = "";
+			Connection conn = null;
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+			try {
+				conn = DbConnectionManager.getConnection();
+				String[] p = gid.split("_");
+				if (p.length == 1 || !p[1].equals("2")) {
+					// 目前只允许发送到部门级别
+					return null;
+				}
 
-			log.info(message.toXML());
+				sql = "select gh||'@" + domain + "' as code from ecard.DATACT_RS_HR_TEACHER_JZGJCXX_V where dwm=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, p[0]);
+
+				rs = ps.executeQuery();
+				while (rs.next()) {
+					String CODE = rs.getString("code");
+					message.setTo(CODE);
+					users.put(CODE);
+					router.route(message);
+					log.info(message.toXML());
+				}
+				rs.close();
+				ps.close();
+			} finally {
+				DbConnectionManager.closeConnection(rs, ps, conn);
+			}
+		} else if (prefix.equals("G1")) {
+			// 根据班级找学生，目前只允许发送到班级级别
+			String sql = "";
+			Connection conn = null;
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+
+			String[] p = gid.split("_");
+			if (p.length != 3) {
+				// 目前只允许发送到班级级别
+				return null;
+			}
+			try {
+				conn = DbConnectionManager.getConnection();
+				sql = "select xh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_JW_XS_XJB t where t.bjh=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, p[2]);
+
+				rs = ps.executeQuery();
+				while (rs.next()) {
+					String CODE = rs.getString("code");
+					message.setTo(CODE);
+					users.put(CODE);
+					router.route(message);
+					log.info(message.toXML());
+				}
+				rs.close();
+				ps.close();
+			} finally {
+				DbConnectionManager.closeConnection(rs, ps, conn);
+			}
+		} else if (prefix.equals("G2")) {
+			// 根据课程找学生
+			String sql = "";
+			Connection conn = null;
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+			String[] p = gid.split("_");
+			if (p.length != 5) {
+				return null;
+			}
+			try {
+				conn = DbConnectionManager.getConnection();
+				// 显示班级里面的学生
+				sql = "select xh||'@" + domain
+						+ "' as code from ecard.datact_SI_JW_JXRW_XSKCB_V where zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
+				ps = conn.prepareStatement(sql);
+				ps.setString(1, p[0]);
+				ps.setString(2, p[1]);
+				ps.setString(3, p[2]);
+				ps.setString(4, p[3]);
+				ps.setString(5, p[4]);
+
+				rs = ps.executeQuery();
+				while (rs.next()) {
+					String CODE = rs.getString("code");
+					message.setTo(CODE);
+					users.put(CODE);
+					router.route(message);
+					log.info(message.toXML());
+				}
+				rs.close();
+				ps.close();
+			} finally {
+				DbConnectionManager.closeConnection(rs, ps, conn);
+			}
 		}
 		return users;
 	}
