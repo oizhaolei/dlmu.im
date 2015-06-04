@@ -79,7 +79,7 @@ public class DlmuIMPlugin implements Plugin {
 				ps.setString(1, pid);
 			} else {
 				String p[] = pid.split("_");
-				if (p[1].equals(2))
+				if (p[1].equals("2"))
 					isMember = true;
 
 				// 显示部门内老师
