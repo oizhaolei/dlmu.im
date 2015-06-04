@@ -305,7 +305,7 @@ public class DlmuIMPlugin implements Plugin {
 
 	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
 		JSONArray users = new JSONArray();
-		String prefix = to_group.substring(1, 2);
+		String prefix = to_group.substring(0, 2);
 		String gid = to_group.substring(2);
 		log.info("----------togroup---------" + to_group);
 		log.info("----------prefix---------" + prefix);
