@@ -76,7 +76,7 @@ public class DlmuIMPlugin implements Plugin {
 				sql = "select  'G0'||CODE||'_'||departlevel||'@" + domain
 						+ "' as code, departname as deptname from ecard.DATACT_RS_OU_DEPARTMENT_V where code!='123000' and PARENTCODE = ?";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, pid.substring(3));
+				ps.setString(1, pid.substring(2));
 			} else {
 				String p[] = pid.split("_");
 				if (p[1].equals("2"))
@@ -85,7 +85,7 @@ public class DlmuIMPlugin implements Plugin {
 				// 显示部门内老师
 				sql = "select gh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_RS_HR_TEACHER_JZGJCXX_V where dwm=? order by code";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, p[0].substring(3));
+				ps.setString(1, p[0].substring(2));
 			}
 			rs = ps.executeQuery();
 			while (rs.next()) {
@@ -154,7 +154,7 @@ public class DlmuIMPlugin implements Plugin {
 					sql = "select distinct 'G1'||depid||'_'||substr(bh,3,4)||'@" + domain
 							+ "' as code,substr(bh,3,4)||'级' as  deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? order by code desc";
 					ps = conn.prepareStatement(sql);
-					ps.setString(1, college.substring(3));
+					ps.setString(1, college.substring(2));
 				} else {
 					// 显示班级
 					if (bjh == null) {
@@ -162,7 +162,7 @@ public class DlmuIMPlugin implements Plugin {
 								+ domain
 								+ "' as code, bjbm as deptname from ecard.DATACT_GY_CLASSLIST_V t where t.depid=? and substr(bh,3,4)=? order by code desc";
 						ps = conn.prepareStatement(sql);
-						ps.setString(1, college.substring(3));
+						ps.setString(1, college.substring(2));
 						ps.setString(2, njdm);
 					} else {
 						isMember = true;
@@ -226,7 +226,7 @@ public class DlmuIMPlugin implements Plugin {
 						+ domain
 						+ "' as code, t2.xm as deptname from ecard.datact_SI_JW_JXRW_XSKCB_V t1, ecard.DATACT_JW_XS_XJB t2 where t2.xh=t1.xh and zxjxjhh=? and kch=? and jsh=? and skxq=? and skjc=? order by code";
 				ps = conn.prepareStatement(sql);
-				ps.setString(1, p[0].substring(3));
+				ps.setString(1, p[0].substring(2));
 				ps.setString(2, p[1]);
 				ps.setString(3, p[2]);
 				ps.setString(4, p[3]);
@@ -306,7 +306,7 @@ public class DlmuIMPlugin implements Plugin {
 	public JSONArray send(String from_jid, String to_group, String subject, String body) throws Exception {
 		JSONArray users = new JSONArray();
 		String prefix = to_group.substring(1, 2);
-		String gid = to_group.substring(3);
+		String gid = to_group.substring(2);
 		System.out.println("----------togroup---------" + to_group);
 		System.out.println("----------prefix---------" + prefix);
 		System.out.println("----------gid---------" + gid);
