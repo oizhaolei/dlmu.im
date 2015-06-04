@@ -40,7 +40,7 @@ public class VersionServlet extends AbstractImServlet {
 			jo.put("im", imjo);
 
 			jo.put("apkUrl", JiveGlobals.getProperty(APK_URL,
-					"http://www.dlmu.edu.cn/dlmu.im.apk"));
+					"http://ecard.dlmu.edu.cn/ecard/dlmu.im.apk"));
 			jo.put("verCode", JiveGlobals.getProperty(VER_CODE, "2015021116"));
 			jo.put("verName", JiveGlobals.getProperty(VER_NAME, "2.5.0"));
 			out.println(jo.toString());
