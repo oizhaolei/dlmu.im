@@ -72,7 +72,7 @@ public class DlmuIMPlugin implements Plugin {
 		try {
 
 			conn = DbConnectionManager.getConnection();
-			if (pid.indexOf("_") == 0) {
+			if (pid.indexOf("_") == -1) {
 				sql = "select  CODE||'_'||departlevel||'@" + domain
 						+ "' as code, departname as deptname from ecard.DATACT_RS_OU_DEPARTMENT_V where code!='123000' and PARENTCODE = ?";
 				ps = conn.prepareStatement(sql);
@@ -211,7 +211,7 @@ public class DlmuIMPlugin implements Plugin {
 
 		try {
 			conn = DbConnectionManager.getConnection();
-			if (pid.indexOf("_") == 0) {
+			if (pid.indexOf("_") == -1) {
 				sql = "select distinct zxjxjhh||'_'||kch||'_'||jsh||'_'||skxq||'_'||skjc||'@"
 						+ domain
 						+ "' as code ,kcm||'/星期'||skxq||'/第'||skjc||'节' deptname FROM ecard.datact_SI_JW_JXRW_XSKCB_V where jsh=? and zxjxjhh='2014-2015-2-1' order by code";
