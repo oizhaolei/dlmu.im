@@ -307,9 +307,9 @@ public class DlmuIMPlugin implements Plugin {
 		JSONArray users = new JSONArray();
 		String prefix = to_group.substring(1, 2);
 		String gid = to_group.substring(2);
-		System.out.println("----------togroup---------" + to_group);
-		System.out.println("----------prefix---------" + prefix);
-		System.out.println("----------gid---------" + gid);
+		log.info("----------togroup---------" + to_group);
+		log.info("----------prefix---------" + prefix);
+		log.info("----------gid---------" + gid);
 		Message message = new Message();
 		message.setFrom(from_jid);
 		message.setSubject(subject);
