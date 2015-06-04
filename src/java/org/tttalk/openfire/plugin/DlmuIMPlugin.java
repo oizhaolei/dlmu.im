@@ -60,7 +60,6 @@ public class DlmuIMPlugin implements Plugin {
 	}
 
 	public JSONObject teacher(String pid) throws Exception {
-
 		JSONObject result = new JSONObject();
 		JSONArray orgs = new JSONArray();
 		JSONArray members = new JSONArray();
@@ -83,7 +82,7 @@ public class DlmuIMPlugin implements Plugin {
 				if (p[1].equals(2))
 					isMember = true;
 
-				// 显示部门内的学生
+				// 显示部门内老师
 				sql = "select gh||'@" + domain + "' as code, xm as deptname from ecard.DATACT_RS_HR_TEACHER_JZGJCXX_V where dwm=? order by code";
 				ps = conn.prepareStatement(sql);
 				ps.setString(1, p[0]);
