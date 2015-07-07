@@ -24,8 +24,7 @@ public class ServiceServlet extends AbstractImServlet {
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Map<String, String> params = getParameterMap(request);
 		if (!Utils.checkSign(params)) {
 			response.getWriter().println("{}");
@@ -35,14 +34,22 @@ public class ServiceServlet extends AbstractImServlet {
 
 		PrintWriter out = response.getWriter();
 		try {
-			params = new HashMap<String, String>();
-			params.put("token", "11");
-			String res = Utils.get(JiveGlobals.getProperty(
-					DLMU_SERVICE_ENTRY_POINT,
-					"http://202.118.89.129/dlmu_rest_webservice/001001"),
-					params);
+			// params = new HashMap<String, String>();
+			// params.put("token", "11");
+			System.out.println("-------------userid-----------------" + params.get("userid"));
+			if (params.get("userid") != null) {
+				String res = Utils
+						.get(JiveGlobals.getProperty(DLMU_SERVICE_ENTRY_POINT, "http://202.118.89.129/dlmu_rest_webservice/000001"), params);
 
-			out.println(res);
+				out.println(res);
+			} else {
+				// 兼容取出全部app的代码
+				System.out.println("-------------ALL-----------------");
+				String res = Utils
+						.get(JiveGlobals.getProperty(DLMU_SERVICE_ENTRY_POINT, "http://202.118.89.129/dlmu_rest_webservice/001001"), params);
+
+				out.println(res);
+			}
 		} catch (Exception e) {
 			Log.error(e.getMessage(), e);
 		}
